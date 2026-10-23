@@ -53,14 +53,8 @@ $ curl -XPOST /todos -d '{}'                → {"error":"title is required"}
 $ docker exec todo whoami                   → app
 ```
 
-## Enabling CI
-The workflow is in `ci/ci.yml` because the token used to publish this repo lacks GitHub's `workflow` scope, which is required to push files into `.github/workflows/`. To switch it on:
-```bash
-gh auth refresh -s workflow
-mkdir -p .github/workflows && git mv ci/ci.yml .github/workflows/ci.yml
-git commit -m "Enable GitHub Actions CI/CD" && git push
-git tag v1.0.0 && git push --tags     # optional: creates a Release with the jar
-```
+## Releases
+Push a tag like `v1.0.0` (`git tag v1.0.0 && git push --tags`) to create a GitHub Release with the jar.
 
 ## LinkedIn demo script (60–90 s)
 1. (10 s) "For CodeAlpha DevOps Task 3 I built a Java REST API with Gradle." Show the repo.
