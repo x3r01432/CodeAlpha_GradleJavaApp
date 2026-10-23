@@ -1,0 +1,47 @@
+name: CI/CD
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+permissions:
+  contents: write
+  packages: write
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "21" }
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build, test, coverage, fat jar
+        run: ./gradlew build shadowJar
+      - uses: actions/upload-artifact@v4
+        with:
+          name: todo-api-jar
+          path: app/build/libs/todo-api-*-all.jar
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-and-coverage-reports
+          path: |
+            app/build/reports/tests/test
+            app/build/reports/jacoco/test/html
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push Docker image
+        if: github.event_name != 'pull_request'
+        run: |
+          IMAGE=ghcr.io/$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          docker build -t $IMAGE:${{ github.sha }} -t $IMAGE:latest .
+          docker push --all-tags $IMAGE
+      - name: GitHub Release (on tag)
+        if: startsWith(github.ref, 'refs/tags/v')
+        env: { GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
+        run: gh release create "${{ github.ref_name }}" app/build/libs/todo-api-*-all.jar --generate-notes
