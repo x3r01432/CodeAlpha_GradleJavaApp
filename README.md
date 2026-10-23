@@ -1,5 +1,7 @@
 # CodeAlpha_GradleJavaApp
 
+[![CI](https://github.com/x3r01432/CodeAlpha_GradleJavaApp/actions/workflows/ci.yml/badge.svg)](https://github.com/x3r01432/CodeAlpha_GradleJavaApp/actions/workflows/ci.yml)
+
 CodeAlpha DevOps Internship, **Task 3: Gradle Java app**. A small to-do REST API in Java 21, built with Gradle (Kotlin DSL), with a version catalog, JUnit 5 tests, JaCoCo coverage (≥70% enforced), a runnable fat jar, a Docker image and a GitHub Actions CI/CD workflow.
 
 ## Architecture
@@ -12,7 +14,7 @@ app/src/main/java/.../App.java          ← JDK HttpServer REST endpoints
 app/src/main/java/.../TodoService.java  ← thread-safe in-memory store + validation
 app/src/test/java/...          ← unit tests + HTTP integration tests
 Dockerfile                     ← non-root JRE image running the fat jar
-ci/ci.yml                      ← GitHub Actions workflow (see Enabling CI)
+.github/workflows/ci.yml       ← GitHub Actions workflow
 ```
 Pipeline: checkout → JDK 21 → `./gradlew build shadowJar` (compile, test, coverage check) → upload jar + reports as artifacts → build and push image to GHCR (`ghcr.io/x3r01432/codealpha_gradlejavaapp`) → on a `v*` tag, create a GitHub Release with the jar.
 
